@@ -7,8 +7,14 @@ export default function PremiumAnalyzer() {
   const [realCoins, setRealCoins] = useState([]);
 
   useEffect(() => {
-    const isPremium = localStorage.getItem('web3hausa-premium');
+    // DEV MODE: Always unlock for testing
+    const isPremium = typeof window !== "undefined" && localStorage.getItem('web3hausa-premium');
     if (isPremium === 'true') {
+      setUnlocked(true);
+      fetchLiveData();
+    } else {
+      // Temporary bypass
+      alert("Debug mode: Premium unlocked temporarily for testing.");
       setUnlocked(true);
       fetchLiveData();
     }
@@ -21,9 +27,9 @@ export default function PremiumAnalyzer() {
       );
       const data = await response.json();
 
-      // Simulate RSI logic (Coingecko doesn't provide RSI directly)
+      // Simulated RSI logic (Coingecko doesn't give RSI directly)
       const enhanced = data.map((coin) => {
-        const mockRSI = Math.floor(Math.random() * 50) + 20; // Simulated RSI between 20–70
+        const mockRSI = Math.floor(Math.random() * 50) + 20;
         const strategy =
           mockRSI < 30
             ? "Scalping setup – consider short bursts on 5m chart"
