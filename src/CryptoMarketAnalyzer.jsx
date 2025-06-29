@@ -34,7 +34,7 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         score,
         recommendation:
           mode === 'premium'
-            ? (score >= 2 ? 'Scalping opportunity: DOGE/USDT' : 'Watch ETH/BTC for swing entry')
+            ? (score >= 2 ? 'Scalping (Ciniki na gaggawa) opportunity: DOGE/USDT' : 'Watch ETH/BTC for swing entry')
             : 'Upgrade to premium for full signals'
       });
       setLoading(false);
@@ -68,7 +68,7 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         </button>
       </div>
 
-      {mode === 'premium' && result && result.score >= 2 && (
+      {mode === 'premium' && (
         <div className="text-center mt-10">
           <a
             href="/Web3Hausa-Trading-Guide.pdf"
@@ -80,54 +80,54 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         </div>
       )}
 
-      {mode === 'premium' && result && result.score >= 2 && (
+      {mode === 'premium' && (
         <div className="max-w-4xl mx-auto mt-10 space-y-6">
           {[
             {
-              title: "Scalping",
-              description: "Premium scalping conditions detected",
+              title: "Scalping (Ciniki na gaggawa)",
+              description: "An gano yanayin ciniki na gaggawa",
               score: 70,
               tips: [
                 "Target 1-5 minute timeframes",
-                "Focus on BTC/ETH major pairs",
+                "Mayar da hankali kan ma'aurata BTC/ETH",
                 "Use 0.1-0.25% profit targets",
-                "Tight stop losses (0.05–0.15%)"
+                "Kakakin dakatarwa mai ƙanƙanta (0.05–0.15%)"
               ],
               risks: [
-                "Watch for sudden news events",
-                "Monitor order book depth",
-                "Avoid low liquidity hours"
+                "Kula da sabbin labarai da gaggawa",
+                "Sarrafa zurfin littafin oda",
+                "Guji lokutan da ba a da yawa a kasuwa"
               ]
             },
             {
-              title: "Day Trading",
-              description: "Outstanding day trading opportunities",
+              title: "Day Trading (Ciniki na rana)",
+              description: "Damar ciniki na rana masu kyau",
               score: 80,
               tips: [
                 "Use 15-60 minute timeframes",
-                "Breakout and trend strategies",
+                "Dabarun fashewa da bin yanayi",
                 "Target 1-3% profits",
-                "Trail stop losses"
+                "Biye da dakatarwar asara"
               ],
               risks: [
-                "Manage position sizes carefully",
-                "Watch for overnight gaps",
-                "Set daily loss limits"
+                "Sarrafa girman matsayi da hankali",
+                "Kula da gibin dare",
+                "Kafa iyakar asarar yau da kullum"
               ]
             },
             {
-              title: "Swing Trading",
-              description: "Exceptional swing trading setup",
+              title: "Swing Trading (Ciniki na motsi)",
+              description: "Kyakkyawan yanayin ciniki na motsi",
               score: 80,
               tips: [
-                "Use daily/weekly charts",
-                "Target major reversals",
-                "1.5–5% profit targets",
-                "Wide stop losses (~8%)"
+                "Yi amfani da jadawalin yau da kullum/na mako",
+                "Nemi canje-canje manya",
+                "Neman ribar 1.5–5%",
+                "Dakatarwa mai faɗi (~8%)"
               ],
               risks: [
-                "Hold through volatility",
-                "Fundamental changes"
+                "Riƙe duk da canje-canje",
+                "Canje-canjen asali"
               ]
             }
           ].map((section, index) => (
@@ -142,11 +142,11 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
                 </div>
               </div>
               <div className="text-sm text-white">
-                <p className="font-semibold text-blue-300">Best Practices</p>
+                <p className="font-semibold text-blue-300">Hanyoyin Mafi Kyau</p>
                 <ul className="list-disc ml-5 mb-2 text-sm text-gray-300">
                   {section.tips.map((tip, i) => <li key={i}>{tip}</li>)}
                 </ul>
-                <p className="font-semibold text-red-400">Risk Factors</p>
+                <p className="font-semibold text-red-400">Hatsarori</p>
                 <ul className="list-disc ml-5 text-sm text-red-300">
                   {section.risks.map((risk, i) => <li key={i}>{risk}</li>)}
                 </ul>
