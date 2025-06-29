@@ -1,68 +1,84 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
-export default function PremiumAnalyzer() {
-  const [unlocked, setUnlocked] = useState(false);
-  const [realCoins, setRealCoins] = useState([]);
-  const [error, setError] = useState(null);
+export default function CryptoMarketAnalyzer() {
+  const [formData, setFormData] = useState({
+    marketCap: '',
+    marketCapChange: '',
+    volume: '',
+    volumeChange: '',
+    btcDominance: '',
+    ethDominance: '',
+    fearGreed: '',
+    activeCoins: ''
+  });
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [coinData, setCoinData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const isPremium = typeof window !== "undefined" && localStorage.getItem('web3hausa-premium');
-    if (isPremium === 'true') {
-      setUnlocked(true);
-      fetchCoinData();
-    } else {
-      console.warn("Debug mode: forcing premium unlocked.");
-      setUnlocked(true);
-      fetchCoinData();
-    }
-  }, []);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const fetchCoinData = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
     try {
-      const response = await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1'
-      );
-      if (!response.ok) throw new Error("CoinGecko fetch failed");
-      const data = await response.json();
-      setRealCoins(data);
+      const res = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=5&page=1');
+      const coins = await res.json();
+      setCoinData(coins);
+      // Simple analyzer logic (for demonstration)
+      const { marketCapChange, volumeChange, fearGreed } = formData;
+      const status = parseFloat(marketCapChange) > 1 && parseFloat(fearGreed) > 50 ? 'Bull Market' : 'Bear/Neutral';
+      const scalping = coins[0] ? `Scalping opportunity: ${coins[0].symbol.toUpperCase()}/USDT` : '';
+      setAnalysisResult({
+        status,
+        scalping,
+        coins
+      });
     } catch (err) {
-      console.error("CoinGecko API error:", err);
-      setError("Cannot load live data – CoinGecko fetch failed.");
+      console.error("Error fetching coin data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!unlocked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white text-center p-10">
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Premium Locked – Premium features are locked</h2>
-          <p className="text-gray-300 mb-4">
-            Don buɗe wannan shafi, da fatan zaka shigar da code a <a href="/premium" className="underline text-blue-400">shafin buɗewa</a>.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-black text-white p-6 space-y-6">
-      <div className="max-w-4xl mx-auto bg-[#111827] p-6 rounded-xl border border-purple-700 shadow space-y-4">
-        <h2 className="text-xl font-semibold text-green-400 mb-2">🔮 Live Coin Strategy Insights (via CoinGecko)</h2>
-        {error ? (
-          <div className="bg-red-800 text-white p-4 rounded">⚠️ {error}</div>
-        ) : realCoins.length === 0 ? (
-          <div>Loading live data...</div>
-        ) : (
-          <ul className="space-y-3">
-            {realCoins.map((coin) => (
-              <li key={coin.id} className="bg-gray-900 p-4 rounded shadow border border-gray-700">
-                <strong className="text-yellow-400">{coin.name}</strong> ({coin.symbol.toUpperCase()}) – ${coin.current_price}
-              </li>
+    <div className="p-6 bg-black min-h-screen text-white space-y-8">
+      <h2 className="text-2xl font-bold text-purple-400">📊 Web3Hausa Market Intelligence</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 bg-gray-900 p-4 rounded-xl">
+        {Object.entries(formData).map(([key, value]) => (
+          <div key={key}>
+            <label className="block text-sm capitalize text-gray-300">{key.replace(/([A-Z])/g, ' $1')}</label>
+            <input
+              type="text"
+              name={key}
+              value={value}
+              onChange={handleChange}
+              className="w-full p-2 rounded bg-gray-800 text-white"
+              placeholder={`Enter ${key}`}
+            />
+          </div>
+        ))}
+        <button type="submit" className="bg-purple-600 px-4 py-2 rounded hover:bg-purple-700">Analyze Market Conditions</button>
+      </form>
+
+      {loading && <p>🔄 Fetching data and analyzing...</p>}
+
+      {analysisResult && (
+        <div className="space-y-6">
+          <div className="p-4 bg-green-700 rounded-xl">📈 Market Status: <strong>{analysisResult.status}</strong></div>
+          <div className="p-4 bg-blue-900 rounded-xl">⚡ {analysisResult.scalping}</div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold text-green-300">Live Top Coins (CoinGecko)</h3>
+            {analysisResult.coins.map((coin) => (
+              <div key={coin.id} className="p-3 bg-gray-800 rounded-lg border border-gray-700">
+                <strong className="text-yellow-300">{coin.name}</strong> ({coin.symbol.toUpperCase()}) – ${coin.current_price}
+              </div>
             ))}
-          </ul>
-        )}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
