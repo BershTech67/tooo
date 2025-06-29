@@ -29,24 +29,52 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         parseFloat(form.marketCapChange24h)
       ].filter(val => val && val > 50).length;
 
-      const strategies = score >= 2
-        ? [
-            "Scalping on DOGE/USDT during peak volatility",
-            "Use trailing stop-loss with high momentum coins",
-            "Monitor ETH/BTC for breakout confirmation",
-            "Focus on assets with >5% daily volume increase"
-          ]
-        : [
-            "Watch ETH/BTC for potential swing entry",
-            "Avoid high leverage during downturns",
-            "Look for RSI range between 45-55",
-            "Track stablecoin inflows to exchanges"
-          ];
+      const getStrategies = (frame) => {
+        if (score === 0) return ["No active strategies. Avoid trading or observe the market."];
+        if (frame === "scalping") {
+          return score >= 2
+            ? [
+                "Scalp DOGE/USDT on 5m chart with RSI<30",
+                "Use VWAP and price action confluence",
+                "Set tight SL, TP at 0.5–1%",
+                "Enter only on confirmed breakout"
+              ]
+            : [
+                "Market volatile. Scalping not advised",
+                "Avoid trading without clear volume surge"
+              ];
+        }
+        if (frame === "day") {
+          return score >= 2
+            ? [
+                "Look for EMA 20/50 cross on 1h chart",
+                "Use MACD + RSI combo for timing entries",
+                "Monitor volume for breakout setups"
+              ]
+            : [
+                "Day trades should wait for volume confirmation",
+                "Avoid forced entries during sideways trend"
+              ];
+        }
+        if (frame === "swing") {
+          return score >= 2
+            ? [
+                "Swing trade ETH/BTC or SOL/USDT with trend",
+                "Use Fibonacci retracement on 1D chart",
+                "Target 5–8% profits with wider stop-loss"
+              ]
+            : [
+                "Wait for RSI near 50 for better entry",
+                "Market unstable. Swing setups unclear"
+              ];
+        }
+        return [];
+      };
 
       setResult({
-        status: score >= 2 ? 'Bullish' : 'Bearish',
-        score,
-        strategies
+        scalping: { score, status: score >= 2 ? "Bullish" : score === 1 ? "Bearish" : "Avoid", strategies: getStrategies("scalping") },
+        day: { score, status: score >= 2 ? "Neutral/Bullish" : score === 1 ? "Bearish" : "Wait/No Signal", strategies: getStrategies("day") },
+        swing: { score, status: score >= 2 ? "Bullish" : score === 1 ? "Bearish" : "Uncertain", strategies: getStrategies("swing") }
       });
       setLoading(false);
     }, 1000);
@@ -80,29 +108,19 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
 
       {result && (
         <div className="max-w-3xl mx-auto mt-6 space-y-6">
-          <div className="bg-[#0f0e20] p-4 rounded-lg shadow-md">
-            <h3 className="text-green-500 font-semibold mb-2">📊 Analysis Result</h3>
-            <p><strong>Status:</strong> {result.status}</p>
-            <p><strong>Score:</strong> {result.score}/3</p>
-            <p><strong>Strategy:</strong></p>
-            <ul className="list-disc list-inside ml-4 text-white">
-              {result.strategies.map((s, idx) => (
-                <li key={idx}>{s}</li>
-              ))}
-            </ul>
-          </div>
-
-          {mode !== 'premium' && (
-            <div className="bg-[#1f1230] p-4 rounded-lg text-white">
-              <h3 className="text-yellow-400 font-semibold mb-2">🧠 How to Use This Professional Tool</h3>
-              <ul className="list-disc list-inside ml-4">
-                <li>Unlocked Collect market stats from CoinMarketCap</li>
-                <li>Unlocked Paste the values into each field</li>
-                <li>Unlocked Click analyze for market mood & signal</li>
-                <li>🔒 Upgrade to Premium for full strategies</li>
+          {["swing", "day", "scalping"].map((frame) => (
+            <div key={frame} className="bg-[#0f0e20] p-4 rounded-lg shadow-md">
+              <h3 className="text-blue-400 font-semibold mb-1">🕒 Time Frame: {frame.charAt(0).toUpperCase() + frame.slice(1)} Trading</h3>
+              <p><strong>Status:</strong> {result[frame].status}</p>
+              <p><strong>Score:</strong> {result[frame].score}/3</p>
+              <p><strong>Strategies:</strong></p>
+              <ul className="list-disc list-inside ml-4 text-white">
+                {result[frame].strategies.map((s, idx) => (
+                  <li key={idx}>{s}</li>
+                ))}
               </ul>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>
