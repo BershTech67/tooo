@@ -11,47 +11,23 @@ export default function PremiumAnalyzer() {
     const isPremium = typeof window !== "undefined" && localStorage.getItem('web3hausa-premium');
     if (isPremium === 'true') {
       setUnlocked(true);
-      fetchLiveData();
+      fetchCoinData();
     } else {
-      // TEMP bypass for debug mode
       console.warn("Debug mode: forcing premium unlocked.");
       setUnlocked(true);
-      fetchLiveData();
+      fetchCoinData();
     }
   }, []);
 
-  const fetchLiveData = async () => {
+  const fetchCoinData = async () => {
     try {
-      const response = await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false'
-      );
-      if (!response.ok) throw new Error("Coingecko API failed");
+      const response = await fetch('http://localhost:5000/api/coins');
+      if (!response.ok) throw new Error("Proxy fetch failed");
       const data = await response.json();
-
-      const enhanced = data.map((coin) => {
-        const mockRSI = Math.floor(Math.random() * 50) + 20;
-        const strategy =
-          mockRSI < 30
-            ? "Scalping setup – consider short bursts on 5m chart"
-            : mockRSI > 70
-            ? "Overbought – consider waiting or shorting"
-            : mockRSI >= 45 && mockRSI <= 60
-            ? "Swing or day trading setup – RSI within stable range"
-            : "Watch and wait – market conditions unclear";
-
-        return {
-          id: coin.id,
-          name: coin.name,
-          price_change_percentage_24h: coin.price_change_percentage_24h,
-          rsi: mockRSI,
-          strategy
-        };
-      });
-
-      setRealCoins(enhanced);
+      setRealCoins(data);
     } catch (err) {
-      console.error("Error fetching coin data:", err);
-      setError("Live coin data is currently unavailable.");
+      console.error("Proxy API error:", err);
+      setError("Cannot load live data – proxy API failed.");
     }
   };
 
@@ -73,16 +49,16 @@ export default function PremiumAnalyzer() {
       <CryptoMarketAnalyzer mode="premium" />
 
       <div className="max-w-4xl mx-auto bg-[#111827] p-6 rounded-xl border border-purple-700 shadow space-y-4">
-        <h2 className="text-xl font-semibold text-green-400 mb-2">🔮 Live Coin Strategy Insights</h2>
+        <h2 className="text-xl font-semibold text-green-400 mb-2">🔮 Live Coin Strategy Insights (via Proxy)</h2>
         {error ? (
           <div className="bg-red-800 text-white p-4 rounded">⚠️ {error}</div>
         ) : realCoins.length === 0 ? (
-          <p className="text-gray-400">⏳ Loading live strategies...</p>
+          <p className="text-gray-400">⏳ Loading strategies...</p>
         ) : (
           realCoins.map((coin) => (
             <div key={coin.id} className="bg-[#1f2937] p-4 rounded-lg text-white shadow-sm">
               <h3 className="text-lg font-bold">{coin.name}</h3>
-              <p>24h Change: {coin.price_change_percentage_24h?.toFixed(2)}%</p>
+              <p>24h Change: {coin.change?.toFixed(2)}%</p>
               <p>RSI (est.): {coin.rsi}</p>
               <p className="mt-2"><strong>Suggested Strategy:</strong> {coin.strategy}</p>
             </div>
