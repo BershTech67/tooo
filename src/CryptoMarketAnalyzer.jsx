@@ -68,7 +68,7 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         </button>
       </div>
 
-      {mode === 'premium' && (
+      {mode === 'premium' && result && result.score >= 2 && (
         <div className="text-center mt-10">
           <a
             href="/Web3Hausa-Trading-Guide.pdf"
@@ -80,7 +80,7 @@ export default function CryptoMarketAnalyzer({ mode = 'free' }) {
         </div>
       )}
 
-      {mode === 'premium' && (
+      {mode === 'premium' && result && result.score >= 2 && (
         <div className="max-w-4xl mx-auto mt-10 space-y-6">
           {[
             {
