@@ -50,14 +50,15 @@ export default function LandingPage() {
             <li>Unlocked Dukkan fasalolin da ke cikin Free</li>
             <li>Unlocked Shawarar dabarun ciniki: Scalping, Day, Swing</li>
             <li>Unlocked Mafi kyawun pairs da za a yi ciniki</li>
-            <li>Unlocked Jagorar Hausa + PDF duba ciniki</li>
+            <li>Unlocked PDF na duba trades</li>
             <li>Unlocked Kungiyar Telegram don tallafi da sigina</li>
           </ul>
 
           <div className="text-sm bg-gray-900 rounded p-4 border border-gray-700 space-y-1">
             <p><strong>Banki:</strong> OPay</p>
-            <p><strong>Lambar Asusun:</strong> 7067679691</p>
-            <p><strong>Sunanka:</strong> Abubakar Abubakar</p>
+            <p><strong>Lambar Account:</strong> 7067679691</p>
+            <p><strong>Sunan Account:</strong> Abubakar Abubakar</p>
+            <p><strong>Kudin Wata Guda:</strong> N2500 Naira</p>
           </div>
 
 <a
@@ -72,9 +73,9 @@ export default function LandingPage() {
 
 <ul className="space-y-2 text-sm text-white">
   <li>Unlocked Dukkan fasalolin da ke cikin Free</li>
-  <li>Unlocked Shawarar dabarun ciniki: Scalping, Day, Swing</li>
-  <li>Unlocked Mafi kyawun pairs da za a yi ciniki</li>
-  <li>Unlocked Jagorar Hausa + PDF duba ciniki</li>
+  <li>Unlocked Shawarar dabarun trading: Scalping, Day Trading and Swing</li>
+  <li>Unlocked Mafi kyawun pairs da za a yi trade</li>
+  <li>Unlocked Jagorar Hausa + PDF duba trades</li>
   <li>Unlocked Kungiyar Telegram don tallafi da sigina</li>
   <li className="mt-2 font-semibold text-green-300">💡 Sakamakon nazari tare da matakin kasuwa da shawarar dabarun ciniki</li>
   <li className="text-sm text-purple-200">Scalping, Day da Swing Trading - daki-daki da ƙididdiga</li>
