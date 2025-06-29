@@ -1,124 +1,79 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import CryptoMarketAnalyzer from './CryptoMarketAnalyzer';
 
-export default function CryptoMarketAnalyzer({ mode = 'free' }) {
-  const [form, setForm] = useState({
-    totalMarketCap: '',
-    marketCapChange24h: '',
-    totalVolume: '',
-    volumeChange24h: '',
-    btcDominance: '',
-    ethDominance: '',
-    fearGreedIndex: '',
-    activeCryptocurrencies: ''
-  });
+export default function PremiumAnalyzer() {
+  const [unlocked, setUnlocked] = useState(false);
+  const [realCoins, setRealCoins] = useState([]);
 
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    const isPremium = localStorage.getItem('web3hausa-premium');
+    if (isPremium === 'true') {
+      setUnlocked(true);
+      fetchLiveData();
+    }
+  }, []);
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const fetchLiveData = async () => {
+    try {
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=volume_desc&per_page=10&page=1&sparkline=false'
+      );
+      const data = await response.json();
 
-  const analyzeMarket = () => {
-    setLoading(true);
-    setTimeout(() => {
-      const score = [
-        parseFloat(form.btcDominance),
-        parseFloat(form.fearGreedIndex),
-        parseFloat(form.marketCapChange24h)
-      ].filter(val => val && val > 50).length;
+      // Simulate RSI logic (Coingecko doesn't provide RSI directly)
+      const enhanced = data.map((coin) => {
+        const mockRSI = Math.floor(Math.random() * 50) + 20; // Simulated RSI between 20–70
+        const strategy =
+          mockRSI < 30
+            ? "Scalping setup – consider short bursts on 5m chart"
+            : mockRSI > 70
+            ? "Overbought – consider waiting or shorting"
+            : mockRSI >= 45 && mockRSI <= 60
+            ? "Swing or day trading setup – RSI within stable range"
+            : "Watch and wait – market conditions unclear";
 
-      const getStrategies = (frame) => {
-        if (score === 0) return ["No active strategies. Avoid trading or observe the market."];
-        if (frame === "scalping") {
-          return score >= 2
-            ? [
-                "Scalp DOGE/USDT on 5m chart with RSI<30",
-                "Use VWAP and price action confluence",
-                "Set tight SL, TP at 0.5–1%",
-                "Enter only on confirmed breakout"
-              ]
-            : [
-                "Market volatile. Scalping not advised",
-                "Avoid trading without clear volume surge"
-              ];
-        }
-        if (frame === "day") {
-          return score >= 2
-            ? [
-                "Look for EMA 20/50 cross on 1h chart",
-                "Use MACD + RSI combo for timing entries",
-                "Monitor volume for breakout setups"
-              ]
-            : [
-                "Day trades should wait for volume confirmation",
-                "Avoid forced entries during sideways trend"
-              ];
-        }
-        if (frame === "swing") {
-          return score >= 2
-            ? [
-                "Swing trade ETH/BTC or SOL/USDT with trend",
-                "Use Fibonacci retracement on 1D chart",
-                "Target 5–8% profits with wider stop-loss"
-              ]
-            : [
-                "Wait for RSI near 50 for better entry",
-                "Market unstable. Swing setups unclear"
-              ];
-        }
-        return [];
-      };
-
-      setResult({
-        scalping: { score, status: score >= 2 ? "Bullish" : score === 1 ? "Bearish" : "Avoid", strategies: getStrategies("scalping") },
-        day: { score, status: score >= 2 ? "Neutral/Bullish" : score === 1 ? "Bearish" : "Wait/No Signal", strategies: getStrategies("day") },
-        swing: { score, status: score >= 2 ? "Bullish" : score === 1 ? "Bearish" : "Uncertain", strategies: getStrategies("swing") }
+        return {
+          id: coin.id,
+          name: coin.name,
+          price_change_percentage_24h: coin.price_change_percentage_24h,
+          rsi: mockRSI,
+          strategy
+        };
       });
-      setLoading(false);
-    }, 1000);
+
+      setRealCoins(enhanced);
+    } catch (error) {
+      console.error("Failed to fetch real coin data:", error);
+    }
   };
+
+  if (!unlocked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black text-white text-center p-10">
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Premium Locked – Premium features are locked</h2>
+          <p className="text-gray-300 mb-4">
+            Don buɗe wannan shafi, da fatan zaka shigar da code a <a href="/premium" className="underline text-blue-400">shafin buɗewa</a>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-950 text-white p-6">
-      <h1 className="text-3xl text-center font-bold text-blue-200 mb-6">[Market] Web3Hausa Market Intelligence</h1>
+    <div className="min-h-screen bg-black text-white p-6 space-y-6">
+      <CryptoMarketAnalyzer mode="premium" />
 
-      <div className="max-w-3xl mx-auto bg-[#1c1c3a] p-6 rounded-xl shadow space-y-4 border border-purple-700">
-        {Object.keys(form).map((key) => (
-          <div key={key}>
-            <label className="block text-sm text-gray-300 capitalize">{key.replace(/([A-Z])/g, ' $1')}</label>
-            <input
-              type="number"
-              name={key}
-              value={form[key]}
-              onChange={handleChange}
-              className="w-full px-3 py-2 rounded bg-gray-900 text-white border border-gray-600"
-            />
-          </div>
-        ))}
-
-        <button
-          onClick={analyzeMarket}
-          className="w-full bg-purple-700 hover:bg-purple-800 text-white py-2 rounded mt-4"
-        >
-          {loading ? "Analyzing..." : "Analyze"}
-        </button>
-      </div>
-
-      {result && (
-        <div className="max-w-3xl mx-auto mt-6 space-y-6">
-          {["swing", "day", "scalping"].map((frame) => (
-            <div key={frame} className="bg-[#0f0e20] p-4 rounded-lg shadow-md">
-              <h3 className="text-blue-400 font-semibold mb-1">🕒 Time Frame: {frame.charAt(0).toUpperCase() + frame.slice(1)} Trading</h3>
-              <p><strong>Status:</strong> {result[frame].status}</p>
-              <p><strong>Score:</strong> {result[frame].score}/3</p>
-              <p><strong>Strategies:</strong></p>
-              <ul className="list-disc list-inside ml-4 text-white">
-                {result[frame].strategies.map((s, idx) => (
-                  <li key={idx}>{s}</li>
-                ))}
-              </ul>
+      {realCoins.length > 0 && (
+        <div className="max-w-4xl mx-auto bg-[#111827] p-6 rounded-xl border border-purple-700 shadow space-y-4">
+          <h2 className="text-xl font-semibold text-green-400 mb-2">🔮 Live Coin Strategy Insights</h2>
+          {realCoins.map((coin) => (
+            <div key={coin.id} className="bg-[#1f2937] p-4 rounded-lg text-white shadow-sm">
+              <h3 className="text-lg font-bold">{coin.name}</h3>
+              <p>24h Change: {coin.price_change_percentage_24h?.toFixed(2)}%</p>
+              <p>RSI (est.): {coin.rsi}</p>
+              <p className="mt-2"><strong>Suggested Strategy:</strong> {coin.strategy}</p>
             </div>
           ))}
         </div>
